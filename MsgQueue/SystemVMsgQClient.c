@@ -36,7 +36,7 @@ void client(int readMqid,int writeMqid)
     if(msg.data[len-1] == '\n')     //丢掉fgets读入的换行符
       len--;
 
-    msg.type = getpid();        //将进程的pid作为消息类型传递给服务器，从而在不同客户之间进行区分
+    msg.type = getpid();        //将进程的pid作为消息类型传递给服务器，从而在不同客户之间进行区分,将pid_t转换为long是能够保证完整显示pid的
 
     msgsnd(writeMqid,&msg,len,0);
 
