@@ -433,6 +433,56 @@ seconds:设置系统经过seconds秒后，发送SIGALRM给当前进程，其默�
 
 ### mmap
 
+头文件：sys/mman.h
+
+函数用于将文件或者Posix共享内存区对象映射到 调用该函数的进程 的地址空间。
+
+`void *mmap(void *addr,size_t len,int prot,int flags,int fd,off_t offset);`
+
+**addr**:指定描述符fd应被映射到的进程内空间的起始地址。通常被指定为空指针，内核将自己选择起始地址。
+
+**len**:映射到进程中的字节数。从被映射文件开头的***offset**个字节处开始计算。
+
+**offset**:通常为零
+
+**prot**:指定内存映射区的保护，PROT_READ/WRITE/EXEC/NONE分别表示可读，可写，可执行，不可访问。
+
+**flags**:MAP_SHARED/PRIVATE两个标志必须指定一个。PRIVATE表示调用函数的进程 对于被映射数据的修改只对该进程可见，并且不改变源文件。SHARED对于共享该对象的进程都可见，并且会修改源文件。MAP_FIXED指示如何处理addr参数，一般不指定。
+
+#### 返回值
+
+成功：返回被映射区的起始地址，也就是fd被映射到进程中的起始地址。
+
+失败：返回MAP_FAILED
+
+#### 说明
+
+* mmap返回成功后，fd可以关闭，并不会影响到已经建立好的映射关系。  
+* fd不能是访问终端或者套接字描述符，这些必须使用read和write及其变体访问。
+
+### munmap
+
+删除映射
+
+`int munmap(void *addr,size_t len);`
+
+**addr**:mmap返回的地址。
+
+**len**:定制空间的大小。
+
+#### 说明
+
+删除后再次访问将导致调用进程产生一个SIGSEGV信号。
+
+### msync
+
+内核进行的映射区和文件的同步可能并不及时，该函数用于执行这种同步。
+
+`int msync(void *addr,size_t len,int flags);`
+
+前两个参数同上
+
+**flags**:MS_ASYNC和MS_SYNC，二者必须指定一个。区别是一旦写操作已由内核排进队列，MS_ASYNC立即返回，而MS_SYNC要等到写操作完成后才返回。MS_INVALIDATE指定了改参数，与最终副本不一致的所有内存中的副本都是小，后续的引用将从文件中获取数据。
 
 
 ### select
